@@ -1,0 +1,37 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ConnectDB.Models;
+
+public class Product
+{
+    [Key]
+    public long Id { get; set; }
+
+    [Required, StringLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    [StringLength(200)]
+    public string Slug { get; set; } = string.Empty;
+
+    public string? Description { get; set; }
+
+    [Required]
+    public decimal Price { get; set; }
+
+    public long? DeveloperId { get; set; }
+    public Developer? Developer { get; set; }
+
+    public long? PublisherId { get; set; }
+    public Publisher? Publisher { get; set; }
+
+    public DateTime? ReleaseDate { get; set; }
+
+    public int Status { get; set; } = 1;
+
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+    public ICollection<ProductImage>? Images { get; set; }
+    public ICollection<ProductVersion>? Versions { get; set; }
+    public ICollection<ProductCategory>? ProductCategories { get; set; }
+}
