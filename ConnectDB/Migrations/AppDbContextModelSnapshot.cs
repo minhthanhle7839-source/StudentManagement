@@ -428,6 +428,10 @@ namespace ConnectDB.Migrations
                     b.Property<long?>("FileSize")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
@@ -668,7 +672,7 @@ namespace ConnectDB.Migrations
             modelBuilder.Entity("ConnectDB.Models.ProductCategory", b =>
                 {
                     b.HasOne("ConnectDB.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("ProductCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -747,6 +751,11 @@ namespace ConnectDB.Migrations
             modelBuilder.Entity("ConnectDB.Models.Cart", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("ConnectDB.Models.Category", b =>
+                {
+                    b.Navigation("ProductCategories");
                 });
 
             modelBuilder.Entity("ConnectDB.Models.Order", b =>

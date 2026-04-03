@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ConnectDB.Models;
 
@@ -16,4 +17,7 @@ public class Category
     public string? Description { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+    [JsonIgnore]
+    public ICollection<ProductCategory>? ProductCategories { get; set; }
+
 }

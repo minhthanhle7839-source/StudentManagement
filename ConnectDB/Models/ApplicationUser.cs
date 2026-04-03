@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using System.Text.Json.Serialization;
 namespace ConnectDB.Models;
 
 public class ApplicationUser
@@ -11,6 +11,7 @@ public class ApplicationUser
     public string Username { get; set; } = string.Empty;
 
     [Required, StringLength(255)]
+
     public string Password { get; set; } = string.Empty;
 
     [Required, StringLength(150)]

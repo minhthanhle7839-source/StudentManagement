@@ -1,13 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ConnectDB.Models;
+
 namespace ConnectDB.Data;
 
 public class AppDbContext : DbContext
 {
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // =========================
+        // PRODUCT - CATEGORY (Many to Many)
+        // =========================
         modelBuilder.Entity<ProductCategory>()
             .HasKey(pc => new { pc.ProductId, pc.CategoryId });
 
@@ -18,10 +26,12 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<ProductCategory>()
             .HasOne(pc => pc.Category)
-            .WithMany()
+            .WithMany(c => c.ProductCategories)
             .HasForeignKey(pc => pc.CategoryId);
-        base.OnModelCreating(modelBuilder);
 
+        // =========================
+        // DECIMAL PRECISION
+        // =========================
         modelBuilder.Entity<Product>()
             .Property(p => p.Price)
             .HasPrecision(18, 2);
@@ -42,25 +52,31 @@ public class AppDbContext : DbContext
             .Property(p => p.Amount)
             .HasPrecision(18, 2);
     }
-    public AppDbContext(DbContextOptions<AppDbContext> options) :
-base(options)
-    {
-    }
-    public DbSet<Student> Students { get; set; }
 
+    // =========================
+    // DB SET
+    // =========================
+    public DbSet<Student> Students { get; set; }
     public DbSet<ApplicationUser> Users { get; set; }
+
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<ProductVersion> ProductVersions { get; set; }
-    public DbSet<Cart> Carts { get; set; }
-    public DbSet<CartItem> CartItems { get; set; }
-    public DbSet<Order> Orders { get; set; }
-    public DbSet<OrderItem> OrderItems { get; set; }
-    public DbSet<Payment> Payments { get; set; }
+
     public DbSet<Category> Categories { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
+
     public DbSet<Developer> Developers { get; set; }
     public DbSet<Publisher> Publishers { get; set; }
+
+    public DbSet<Cart> Carts { get; set; }
+    public DbSet<CartItem> CartItems { get; set; }
+
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+
+    public DbSet<Payment> Payments { get; set; }
+
     public DbSet<Library> Libraries { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Wishlist> Wishlists { get; set; }

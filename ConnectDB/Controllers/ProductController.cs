@@ -2,6 +2,7 @@
 using ConnectDB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
 namespace ConnectDB.Controllers
@@ -26,6 +27,8 @@ namespace ConnectDB.Controllers
             var products = await _context.Products
                 .Include(p => p.Developer)
                 .Include(p => p.Publisher)
+                .Include(p => p.ProductCategories)
+                    .ThenInclude(pc => pc.Category)
                 .ToListAsync();
 
             return Ok(products);
@@ -40,6 +43,8 @@ namespace ConnectDB.Controllers
             var product = await _context.Products
                 .Include(p => p.Developer)
                 .Include(p => p.Publisher)
+                .Include(p => p.ProductCategories)
+                    .ThenInclude(pc => pc.Category)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -49,7 +54,7 @@ namespace ConnectDB.Controllers
         }
 
         // =========================
-        // 3. CREATE
+        // 3. CREATE (JSON có categoryIds)
         // =========================
         [HttpPost]
         public async Task<IActionResult> Create(Product model)
@@ -61,24 +66,40 @@ namespace ConnectDB.Controllers
             model.CreatedAt = DateTime.Now;
             model.UpdatedAt = DateTime.Now;
 
+            // lưu product trước
             _context.Products.Add(model);
             await _context.SaveChangesAsync();
+
+            // thêm category
+            if (model.CategoryIds != null && model.CategoryIds.Any())
+            {
+                var relations = model.CategoryIds.Select(cid => new ProductCategory
+                {
+                    ProductId = model.Id,
+                    CategoryId = cid
+                });
+
+                _context.ProductCategories.AddRange(relations);
+                await _context.SaveChangesAsync();
+            }
 
             return Ok(model);
         }
 
         // =========================
-        // 4. UPDATE
+        // 4. UPDATE (sync categoryIds)
         // =========================
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(long id, Product model)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.ProductCategories)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
                 return NotFound("Product not found");
 
-            // update fields
+            // update field
             product.Name = model.Name;
             product.Slug = GenerateSlug(model.Name);
             product.Description = model.Description;
@@ -89,13 +110,29 @@ namespace ConnectDB.Controllers
             product.Status = model.Status;
             product.UpdatedAt = DateTime.Now;
 
+            // xử lý category
+            if (model.CategoryIds != null)
+            {
+                // xóa cũ
+                _context.ProductCategories.RemoveRange(product.ProductCategories);
+
+                // thêm mới
+                var relations = model.CategoryIds.Select(cid => new ProductCategory
+                {
+                    ProductId = product.Id,
+                    CategoryId = cid
+                });
+
+                _context.ProductCategories.AddRange(relations);
+            }
+
             await _context.SaveChangesAsync();
 
             return Ok(product);
         }
 
         // =========================
-        // 5. DELETE (HARD DELETE)
+        // 5. DELETE
         // =========================
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long id)
@@ -105,29 +142,16 @@ namespace ConnectDB.Controllers
             if (product == null)
                 return NotFound("Product not found");
 
+            // xóa bảng trung gian
+            var relations = _context.ProductCategories
+                .Where(pc => pc.ProductId == id);
+
+            _context.ProductCategories.RemoveRange(relations);
+
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
             return Ok("Deleted successfully");
-        }
-
-        // =========================
-        // 6. SOFT DELETE (OPTIONAL)
-        // =========================
-        [HttpPatch("soft-delete/{id}")]
-        public async Task<IActionResult> SoftDelete(long id)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-                return NotFound("Product not found");
-
-            product.Status = 0; // 0 = inactive
-            product.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-
-            return Ok("Soft deleted");
         }
 
         // =========================

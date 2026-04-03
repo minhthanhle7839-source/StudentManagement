@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConnectDB.Migrations
 {
     /// <inheritdoc />
-    public partial class FixDecimal : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -257,6 +257,7 @@ namespace ConnectDB.Migrations
                     Changelog = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FileSize = table.Column<long>(type: "bigint", nullable: true),
+                    FileUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ConnectDB.Models;
 
@@ -9,7 +10,7 @@ public class ProductImage
 
     [Required]
     public long ProductId { get; set; }
-
+    [JsonIgnore]
     public Product? Product { get; set; }
 
     [Required]

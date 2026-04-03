@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ConnectDB.Models;
 
@@ -9,7 +10,7 @@ public class ProductVersion
 
     [Required]
     public long ProductId { get; set; }
-
+    [JsonIgnore]
     public Product? Product { get; set; }
 
     [Required, StringLength(50)]
@@ -20,6 +21,8 @@ public class ProductVersion
     public DateTime? ReleaseDate { get; set; }
 
     public long? FileSize { get; set; }
+    [Required] 
+    public string FileUrl { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }

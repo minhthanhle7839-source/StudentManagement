@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace ConnectDB.Models;
 
 public class Product
@@ -30,7 +31,8 @@ public class Product
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
-
+    [NotMapped]
+    public List<long>? CategoryIds { get; set; }
     public ICollection<ProductImage>? Images { get; set; }
     public ICollection<ProductVersion>? Versions { get; set; }
     public ICollection<ProductCategory>? ProductCategories { get; set; }

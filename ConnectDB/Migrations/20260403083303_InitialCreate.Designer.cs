@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConnectDB.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260320090200_FixDecimal")]
-    partial class FixDecimal
+    [Migration("20260403083303_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -431,6 +431,10 @@ namespace ConnectDB.Migrations
                     b.Property<long?>("FileSize")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
@@ -671,7 +675,7 @@ namespace ConnectDB.Migrations
             modelBuilder.Entity("ConnectDB.Models.ProductCategory", b =>
                 {
                     b.HasOne("ConnectDB.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("ProductCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -750,6 +754,11 @@ namespace ConnectDB.Migrations
             modelBuilder.Entity("ConnectDB.Models.Cart", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("ConnectDB.Models.Category", b =>
+                {
+                    b.Navigation("ProductCategories");
                 });
 
             modelBuilder.Entity("ConnectDB.Models.Order", b =>
