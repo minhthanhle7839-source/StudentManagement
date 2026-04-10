@@ -48,7 +48,7 @@ namespace ConnectDB.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            model.CreatedAt = DateTime.Now;
+            model.CreatedAt = DateTime.UtcNow;
 
             _context.ProductImages.Add(model);
             await _context.SaveChangesAsync();

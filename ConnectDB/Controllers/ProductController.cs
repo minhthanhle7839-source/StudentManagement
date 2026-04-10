@@ -63,8 +63,8 @@ namespace ConnectDB.Controllers
                 return BadRequest(ModelState);
 
             model.Slug = GenerateSlug(model.Name);
-            model.CreatedAt = DateTime.Now;
-            model.UpdatedAt = DateTime.Now;
+            model.CreatedAt = DateTime.UtcNow;
+            model.UpdatedAt = DateTime.UtcNow;
 
             // lưu product trước
             _context.Products.Add(model);
@@ -108,7 +108,7 @@ namespace ConnectDB.Controllers
             product.PublisherId = model.PublisherId;
             product.ReleaseDate = model.ReleaseDate;
             product.Status = model.Status;
-            product.UpdatedAt = DateTime.Now;
+            product.UpdatedAt = DateTime.UtcNow;
 
             // xử lý category
             if (model.CategoryIds != null)

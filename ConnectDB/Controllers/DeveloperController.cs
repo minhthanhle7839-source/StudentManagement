@@ -38,7 +38,7 @@ namespace ConnectDB.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Developer model)
         {
-            model.CreatedAt = DateTime.Now;
+            model.CreatedAt = DateTime.UtcNow;
 
             _context.Developers.Add(model);
             await _context.SaveChangesAsync();

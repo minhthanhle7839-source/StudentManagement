@@ -58,7 +58,7 @@ namespace ConnectDB.Controllers
                 return BadRequest(ModelState);
 
             model.Slug = GenerateSlug(model.Name);
-            model.CreatedAt = DateTime.Now;
+            model.CreatedAt = DateTime.UtcNow;
 
             _context.Categories.Add(model);
             await _context.SaveChangesAsync();

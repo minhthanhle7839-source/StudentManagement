@@ -56,8 +56,8 @@ namespace ConnectDB.Controllers
             if (exists)
                 return BadRequest("Username hoặc Email đã tồn tại");
 
-            model.CreatedAt = DateTime.Now;
-            model.UpdatedAt = DateTime.Now;
+            model.CreatedAt = DateTime.UtcNow;
+            model.UpdatedAt = DateTime.UtcNow;
 
             // ⚠️ NOTE: chưa hash password (sẽ nâng cấp sau)
             _context.Users.Add(model);
@@ -83,7 +83,7 @@ namespace ConnectDB.Controllers
             user.Avatar = model.Avatar;
             user.Country = model.Country;
             user.Status = model.Status;
-            user.UpdatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
