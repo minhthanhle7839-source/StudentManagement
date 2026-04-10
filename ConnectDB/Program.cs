@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,7 @@ string connectionString;
 // ✅ Ưu tiên dùng DATABASE_URL (production)
 if (!string.IsNullOrEmpty(databaseUrl))
 {
-    // Fix schema postgres:// → postgresql://
+    // Fix postgres:// → postgresql://
     if (databaseUrl.StartsWith("postgres://"))
     {
         databaseUrl = databaseUrl.Replace("postgres://", "postgresql://");
@@ -20,7 +21,7 @@ if (!string.IsNullOrEmpty(databaseUrl))
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
 
-    // 🔥 FIX PORT = -1
+    // 🔥 FIX PORT
     var port = uri.Port > 0 ? uri.Port : 5432;
 
     connectionString =
@@ -34,11 +35,11 @@ if (!string.IsNullOrEmpty(databaseUrl))
 }
 else
 {
-    // ✅ Chạy local
+    // ✅ Local
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 }
 
-// 👉 Debug log để xem trên Render
+// 👉 Debug log
 Console.WriteLine("DATABASE_URL = " + databaseUrl);
 Console.WriteLine("CONNECTION STRING = " + connectionString);
 
@@ -46,8 +47,13 @@ Console.WriteLine("CONNECTION STRING = " + connectionString);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// 🔧 Services
-builder.Services.AddControllers();
+// 🔧 FIX JSON vòng lặp (QUAN TRỌNG)
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -64,12 +70,20 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 app.MapControllers();
 
-// 🔥 Auto migrate (để thấy lỗi thật nếu có)
+// 🔥 Auto migrate (có log lỗi rõ ràng)
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-    Console.WriteLine("✅ Database migrated");
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+        Console.WriteLine("✅ Database migrated");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("❌ Migration failed: " + ex.Message);
+        throw;
+    }
 }
 
 app.Run();
