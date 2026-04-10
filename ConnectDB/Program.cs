@@ -20,9 +20,12 @@ if (!string.IsNullOrEmpty(databaseUrl))
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
 
+    // 🔥 FIX PORT = -1
+    var port = uri.Port > 0 ? uri.Port : 5432;
+
     connectionString =
         $"Host={uri.Host};" +
-        $"Port={uri.Port};" +
+        $"Port={port};" +
         $"Database={uri.AbsolutePath.Trim('/')};" +
         $"Username={userInfo[0]};" +
         $"Password={userInfo[1]};" +
@@ -31,11 +34,11 @@ if (!string.IsNullOrEmpty(databaseUrl))
 }
 else
 {
-    // ✅ Fallback local / config
+    // ✅ Chạy local
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 }
 
-// 👉 Debug (xem log Render)
+// 👉 Debug log để xem trên Render
 Console.WriteLine("DATABASE_URL = " + databaseUrl);
 Console.WriteLine("CONNECTION STRING = " + connectionString);
 
@@ -61,7 +64,7 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 app.MapControllers();
 
-// 🔥 Auto migrate (KHÔNG nuốt lỗi nữa)
+// 🔥 Auto migrate (để thấy lỗi thật nếu có)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
