@@ -17,7 +17,7 @@ public class Library
 
     public Product? Product { get; set; }
 
-    public DateTime PurchaseDate { get; set; } = DateTime.Now;
+    public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
 
     public string? LicenseKey { get; set; }
 

@@ -24,5 +24,5 @@ public class ProductVersion
     [Required] 
     public string FileUrl { get; set; } = string.Empty;
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

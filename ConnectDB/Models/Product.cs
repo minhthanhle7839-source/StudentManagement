@@ -29,8 +29,8 @@ public class Product
 
     public int Status { get; set; } = 1;
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     [NotMapped]
     public List<long>? CategoryIds { get; set; }
     public ICollection<ProductImage>? Images { get; set; }

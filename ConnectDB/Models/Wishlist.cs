@@ -17,5 +17,5 @@ public class Wishlist
 
     public Product? Product { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

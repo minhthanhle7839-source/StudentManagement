@@ -16,7 +16,7 @@ public class Category
 
     public string? Description { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     [JsonIgnore]
     public ICollection<ProductCategory>? ProductCategories { get; set; }
 

@@ -21,8 +21,8 @@ public class Order
     [Required]
     public string OrderStatus { get; set; } = "processing";
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<OrderItem>? Items { get; set; }
     public Payment? Payment { get; set; }
