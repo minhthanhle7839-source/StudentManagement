@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
-using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,28 +8,36 @@ var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
 string connectionString;
 
-// ✅ Nếu có DATABASE_URL (deploy trên Render)
+// ✅ Ưu tiên dùng DATABASE_URL (production)
 if (!string.IsNullOrEmpty(databaseUrl))
 {
+    // Fix schema postgres:// → postgresql://
+    if (databaseUrl.StartsWith("postgres://"))
+    {
+        databaseUrl = databaseUrl.Replace("postgres://", "postgresql://");
+    }
+
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
 
-    connectionString = new NpgsqlConnectionStringBuilder
-    {
-        Host = uri.Host,
-        Port = uri.Port,
-        Username = userInfo[0],
-        Password = userInfo[1],
-        Database = uri.AbsolutePath.Trim('/'),
-        SslMode = SslMode.Require,
-        TrustServerCertificate = true
-    }.ToString();
+    connectionString =
+        $"Host={uri.Host};" +
+        $"Port={uri.Port};" +
+        $"Database={uri.AbsolutePath.Trim('/')};" +
+        $"Username={userInfo[0]};" +
+        $"Password={userInfo[1]};" +
+        $"SSL Mode=Require;" +
+        $"Trust Server Certificate=true";
 }
 else
 {
-    // ✅ Chạy local
+    // ✅ Fallback local / config
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 }
+
+// 👉 Debug (xem log Render)
+Console.WriteLine("DATABASE_URL = " + databaseUrl);
+Console.WriteLine("CONNECTION STRING = " + connectionString);
 
 // 🔗 Kết nối DB
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -54,19 +61,12 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 app.MapControllers();
 
-// 🔥 Auto migrate (không crash app)
+// 🔥 Auto migrate (KHÔNG nuốt lỗi nữa)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try
-    {
-        db.Database.Migrate();
-        Console.WriteLine("✅ Database migrated successfully");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("❌ Migration failed: " + ex.Message);
-    }
+    db.Database.Migrate();
+    Console.WriteLine("✅ Database migrated");
 }
 
 app.Run();
