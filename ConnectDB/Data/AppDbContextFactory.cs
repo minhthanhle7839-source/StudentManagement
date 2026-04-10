@@ -9,8 +9,8 @@ namespace ConnectDB.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
-            optionsBuilder.UseSqlServer(
-                "Server=localhost;Database=StudentDB_Net8;Trusted_Connection=True;TrustServerCertificate=True"
+            optionsBuilder.UseNpgsql(
+                "Host=dpg-d7c9fidckfvc7386dlkg-a.oregon-postgres.render.com;Port=5432;Database=studentdb_lg5l;Username=studentuser;Password=6aOwQnp5FBP5x3Myc4WFTLQ0zdsoh2ZC;SSL Mode=Require;Trust Server Certificate=true"
             );
 
             return new AppDbContext(optionsBuilder.Options);
