@@ -3,6 +3,11 @@ using ConnectDB.Data;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables();
 
 // 🔥 Lấy DATABASE_URL từ Render
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
