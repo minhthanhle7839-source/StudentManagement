@@ -1,4 +1,5 @@
 ﻿using ConnectDB.Data;
+using ConnectDB.DTO;
 using ConnectDB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -89,37 +90,39 @@ namespace ConnectDB.Controllers
 
             return Ok("Deleted successfully");
         }
+
+
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(
-    [FromForm] IFormFile file,
-    [FromForm] long productId,
-    [FromForm] string version
-)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadVersion([FromForm] UploadVersionRequest request)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("File không hợp lệ");
+            if (request.File == null)
+                return BadRequest("No file");
 
-            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/files", fileName);
+            var ext = Path.GetExtension(request.File.FileName);
 
-            using (var stream = new FileStream(path, FileMode.Create))
+            // chỉ cho phép doc, excel
+            if (!new[] { ".doc", ".docx", ".xls", ".xlsx" }.Contains(ext))
+                return BadRequest("Invalid file");
+
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var path = Path.Combine("wwwroot/files", fileName);
+
+            using var stream = new FileStream(path, FileMode.Create);
+            await request.File.CopyToAsync(stream);
+
+            var version = new ProductVersion
             {
-                await file.CopyToAsync(stream);
-            }
-
-            var model = new ProductVersion
-            {
-                ProductId = productId,
-                Version = version,
-                FileUrl = "/uploads/files/" + fileName,
-                FileSize = file.Length,
-                CreatedAt = DateTime.UtcNow
+                ProductId = request.ProductId,
+                Version = request.Version,
+                Changelog = request.Changelog,
+                FileUrl = $"/files/{fileName}"
             };
 
-            _context.ProductVersions.Add(model);
+            _context.ProductVersions.Add(version);
             await _context.SaveChangesAsync();
 
-            return Ok(model);
+            return Ok(version);
         }
     }
 }

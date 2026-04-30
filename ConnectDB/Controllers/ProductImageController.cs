@@ -1,4 +1,5 @@
 ﻿using ConnectDB.Data;
+using ConnectDB.DTO;
 using ConnectDB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -87,25 +88,26 @@ namespace ConnectDB.Controllers
 
             return Ok("Deleted successfully");
         }
+
+
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadImage([FromForm] IFormFile file, [FromForm] long productId)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadImage([FromForm] UploadImageRequest request)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("File không hợp lệ");
+            if (request.File == null || request.File.Length == 0)
+                return BadRequest("No file");
 
-            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/images", fileName);
+            var ext = Path.GetExtension(request.File.FileName);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var path = Path.Combine("wwwroot/images", fileName);
 
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            using var stream = new FileStream(path, FileMode.Create);
+            await request.File.CopyToAsync(stream);
 
             var image = new ProductImage
             {
-                ProductId = productId,
-                ImageUrl = "/uploads/images/" + fileName,
-                CreatedAt = DateTime.UtcNow
+                ProductId = request.ProductId,
+                ImageUrl = $"/images/{fileName}"
             };
 
             _context.ProductImages.Add(image);
