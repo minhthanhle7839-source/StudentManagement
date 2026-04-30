@@ -74,7 +74,7 @@ app.UseSwaggerUI(c =>
 app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseHttpsRedirection();
 app.MapControllers();
-
+app.UseStaticFiles();
 // 🔥 Auto migrate (có log lỗi rõ ràng)
 using (var scope = app.Services.CreateScope())
 {
