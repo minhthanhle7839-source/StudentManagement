@@ -89,5 +89,37 @@ namespace ConnectDB.Controllers
 
             return Ok("Deleted successfully");
         }
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(
+    [FromForm] IFormFile file,
+    [FromForm] long productId,
+    [FromForm] string version
+)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File không hợp lệ");
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/files", fileName);
+
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var model = new ProductVersion
+            {
+                ProductId = productId,
+                Version = version,
+                FileUrl = "/uploads/files/" + fileName,
+                FileSize = file.Length,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.ProductVersions.Add(model);
+            await _context.SaveChangesAsync();
+
+            return Ok(model);
+        }
     }
 }
