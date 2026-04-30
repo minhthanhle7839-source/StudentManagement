@@ -33,7 +33,7 @@ public class Product
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     [NotMapped]
     public List<long>? CategoryIds { get; set; }
-    public ICollection<ProductImage>? Images { get; set; }
-    public ICollection<ProductVersion>? Versions { get; set; }
-    public ICollection<ProductCategory>? ProductCategories { get; set; }
+    public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
+    public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+    public ICollection<ProductVersion> Versions { get; set; } = new List<ProductVersion>();
 }
