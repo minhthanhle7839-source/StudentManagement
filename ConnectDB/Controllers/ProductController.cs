@@ -45,6 +45,8 @@ namespace ConnectDB.Controllers
                 .Include(p => p.Publisher)
                 .Include(p => p.ProductCategories)
                     .ThenInclude(pc => pc.Category)
+                .Include(p => p.Images)     
+                .Include(p => p.Versions)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
