@@ -66,7 +66,7 @@ namespace ConnectDB.Controllers
             {
                 File = new FileDescription(request.File.FileName, request.File.OpenReadStream()),
                 Folder = "gamestore/products",
-                Transformation = new Transformation().Quality("auto").FetchFormat("auto")
+               
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
