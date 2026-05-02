@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
 using System.Text.Json.Serialization;
-
+using CloudinaryDotNet;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Configuration
@@ -58,7 +58,14 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
-
+var cloudinaryConfig = builder.Configuration.GetSection("Cloudinary");
+var cloudinary = new Cloudinary(new Account(
+    cloudinaryConfig["CloudName"],
+    cloudinaryConfig["ApiKey"],
+    cloudinaryConfig["ApiSecret"]
+));
+cloudinary.Api.Secure = true;
+builder.Services.AddSingleton(cloudinary);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
