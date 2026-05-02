@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
 using System.Text.Json.Serialization;
-using CloudinaryDotNet;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Configuration
@@ -58,25 +58,7 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
-// Thay đoạn tạo cloudinary bằng:
-var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
-Cloudinary cloudinary;
 
-if (!string.IsNullOrEmpty(cloudinaryUrl))
-{
-    cloudinary = new Cloudinary(cloudinaryUrl);
-}
-else
-{
-    var cloudinaryConfig = builder.Configuration.GetSection("Cloudinary");
-    cloudinary = new Cloudinary(new Account(
-        cloudinaryConfig["CloudName"],
-        cloudinaryConfig["ApiKey"],
-        cloudinaryConfig["ApiSecret"]
-    ));
-}
-cloudinary.Api.Secure = true;
-builder.Services.AddSingleton(cloudinary);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -95,9 +77,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
-app.UseStaticFiles();
 app.MapControllers();
-
+app.UseStaticFiles();
 // 🔥 Auto migrate (có log lỗi rõ ràng)
 using (var scope = app.Services.CreateScope())
 {
