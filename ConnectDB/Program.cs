@@ -60,9 +60,9 @@ builder.Services.AddControllers()
     });
 var cloudinaryConfig = builder.Configuration.GetSection("Cloudinary");
 var cloudinary = new Cloudinary(new Account(
-    cloudinaryConfig["CloudName"],
-    cloudinaryConfig["ApiKey"],
-    cloudinaryConfig["ApiSecret"]
+    Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") ?? cloudinaryConfig["CloudName"],
+    Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") ?? cloudinaryConfig["ApiKey"],
+    Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") ?? cloudinaryConfig["ApiSecret"]
 ));
 cloudinary.Api.Secure = true;
 builder.Services.AddSingleton(cloudinary);
