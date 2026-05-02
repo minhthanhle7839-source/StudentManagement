@@ -77,8 +77,9 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
-app.MapControllers();
 app.UseStaticFiles();
+app.MapControllers();
+
 // 🔥 Auto migrate (có log lỗi rõ ràng)
 using (var scope = app.Services.CreateScope())
 {
