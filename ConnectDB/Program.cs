@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ConnectDB.Data;
+﻿using ConnectDB.Data;
+using ConnectDB.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,7 +59,7 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
-
+builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -77,7 +78,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
-app.UseStaticFiles();
+
 app.MapControllers();
 
 // 🔥 Auto migrate (có log lỗi rõ ràng)

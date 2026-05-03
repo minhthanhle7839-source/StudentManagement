@@ -1,6 +1,7 @@
 ﻿using ConnectDB.Data;
 using ConnectDB.DTO;
 using ConnectDB.Models;
+using ConnectDB.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,11 +12,14 @@ namespace ConnectDB.Controllers
     public class ProductImageController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly CloudinaryService _cloudinary;
 
-        public ProductImageController(AppDbContext context)
+        public ProductImageController(AppDbContext context, CloudinaryService cloudinary)
         {
             _context = context;
+            _cloudinary = cloudinary;
         }
+
 
         // GET ALL
         [HttpGet]
@@ -97,17 +101,13 @@ namespace ConnectDB.Controllers
             if (request.File == null || request.File.Length == 0)
                 return BadRequest("No file");
 
-            var ext = Path.GetExtension(request.File.FileName);
-            var fileName = $"{Guid.NewGuid()}{ext}";
-            var path = Path.Combine("wwwroot/images", fileName);
-
-            using var stream = new FileStream(path, FileMode.Create);
-            await request.File.CopyToAsync(stream);
+            // 👉 upload cloud
+            var imageUrl = await _cloudinary.UploadImageAsync(request.File);
 
             var image = new ProductImage
             {
                 ProductId = request.ProductId,
-                ImageUrl = $"/images/{fileName}"
+                ImageUrl = imageUrl
             };
 
             _context.ProductImages.Add(image);

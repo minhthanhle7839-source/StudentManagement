@@ -1,6 +1,7 @@
 ﻿using ConnectDB.Data;
 using ConnectDB.DTO;
 using ConnectDB.Models;
+using ConnectDB.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,12 +12,13 @@ namespace ConnectDB.Controllers
     public class ProductVersionController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly CloudinaryService _cloudinary;
 
-        public ProductVersionController(AppDbContext context)
+        public ProductVersionController(AppDbContext context, CloudinaryService cloudinary)
         {
             _context = context;
+            _cloudinary = cloudinary;
         }
-
         // GET ALL
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -101,22 +103,18 @@ namespace ConnectDB.Controllers
 
             var ext = Path.GetExtension(request.File.FileName);
 
-            // chỉ cho phép doc, excel
             if (!new[] { ".doc", ".docx", ".xls", ".xlsx" }.Contains(ext))
                 return BadRequest("Invalid file");
 
-            var fileName = $"{Guid.NewGuid()}{ext}";
-            var path = Path.Combine("wwwroot/files", fileName);
-
-            using var stream = new FileStream(path, FileMode.Create);
-            await request.File.CopyToAsync(stream);
+            // 👉 upload cloud
+            var fileUrl = await _cloudinary.UploadFileAsync(request.File);
 
             var version = new ProductVersion
             {
                 ProductId = request.ProductId,
                 Version = request.Version,
                 Changelog = request.Changelog,
-                FileUrl = $"/files/{fileName}"
+                FileUrl = fileUrl
             };
 
             _context.ProductVersions.Add(version);
