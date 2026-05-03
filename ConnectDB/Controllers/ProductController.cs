@@ -89,7 +89,20 @@ namespace ConnectDB.Controllers
 
             return Ok(model);
         }
+        [HttpGet("slug/{slug}")]
+        public async Task<IActionResult> GetBySlug(string slug)
+        {
+            var product = await _context.Products
+                .Include(p => p.Developer)
+                .Include(p => p.Publisher)
+                .Include(p => p.ProductCategories).ThenInclude(pc => pc.Category)
+                .Include(p => p.Images)
+                .Include(p => p.Versions)
+                .FirstOrDefaultAsync(p => p.Slug == slug);
 
+            if (product == null) return NotFound("Product not found");
+            return Ok(product);
+        }
         // =========================
         // 4. UPDATE (sync categoryIds)
         // =========================
